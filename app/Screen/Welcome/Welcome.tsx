@@ -22,11 +22,11 @@ export default function Welcome() {
               style={{
                 width: "40%",
                 height: "60%",
-                marginBottom: "-15%"
+                marginBottom: "-10%"
               }}
             />
             <Logo width={"80%"} height={"20%"} />
-             <Text style={styles.brandName}>BE HERE</Text>
+            <Text style={styles.brandName}>BE HERE</Text>
           </View>
           {/* Form Section */}
           <View style={styles.formContainer}>
@@ -81,8 +81,6 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingBottom: "10%",
     marginBottom: "5%"
   },
   brandName: {

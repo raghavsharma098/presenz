@@ -1,18 +1,19 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, TouchableOpacity, ImageBackground, StyleSheet } from 'react-native';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import Pin from "../../../assets/logo/pin.svg";
 import { router } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 export default function FinalWelcomeScreen() {
     return (
         // <ImageBackground source={require('./assets/space-bg.png')} style={styles.container}>
         <SafeAreaView style={styles.overlay}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.iconCircle} onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color="white" />
+                <TouchableOpacity style={styles.iconCircle} onPress={router.back}>
+                    <Ionicons name="arrow-back" size={20} color="white" />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.iconCircle}>
-                    <FontAwesome5 name="moon" size={24} color="black" />
+                <TouchableOpacity style={styles.themeCircle}>
+                    <FontAwesome5 name="moon" size={20} color="white" />
                 </TouchableOpacity>
             </View>
 
@@ -44,19 +45,27 @@ const styles = StyleSheet.create({
     },
     overlay: {
         flex: 1,
-        paddingHorizontal: 25,
-        paddingBottom: 40,
         backgroundColor: '#000'
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 20
+        marginTop: 20,
     },
     iconCircle: {
-        backgroundColor: 'rgba(255,255,255,0.15)',
-        padding: 10,
-        borderRadius: 25
+        position: 'absolute',
+        top: "5%",
+        left: "5%",
+        backgroundColor: 'rgba(96, 165, 250, 0.3)',
+        padding: "1%",
+        borderRadius: 20,
+    },
+    themeCircle: {
+        position: 'absolute',
+        top: "5%",
+        right: "5%",
+        padding: "1%",
+        borderRadius: 20,
     },
     centerContent: {
         flex: 1,
@@ -129,8 +138,12 @@ const styles = StyleSheet.create({
 
     // Button Style
     primaryButton: {
-        backgroundColor: '#34495E', // Match the dark blue/grey button
-        height: 60,
+        backgroundColor: 'rgba(43, 77, 255, 1)', // Match the dark blue/grey button
+        height: "7%",
+        width: '90%',
+        alignSelf: 'center',
+        position: 'absolute',
+        bottom: "20%",
         borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',

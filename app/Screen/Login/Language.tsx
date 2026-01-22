@@ -5,7 +5,7 @@ import {
     StyleSheet,
     ImageBackground,
     TouchableOpacity,
-    SafeAreaView,
+
     TextInput,
     FlatList,
     Image
@@ -14,6 +14,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { SafeAreaView } from 'react-native-safe-area-context';
 // Define the shape of our language data
 interface Language {
     id: string;
@@ -97,7 +98,7 @@ export default function LanguageSelectionScreen({ navigation }: any) {
                     />
                 </View>
 
-                <TouchableOpacity style={styles.continueButton} onPress={()=>{router.navigate('/Screen/Login/Hobbies')}}>
+                <TouchableOpacity style={styles.continueButton} onPress={() => { router.navigate('/Screen/Login/Hobbies') }}>
                     <Text style={styles.continueText}>Continue</Text>
                 </TouchableOpacity>
             </View>
@@ -116,17 +117,17 @@ const styles = StyleSheet.create({
         backgroundColor: '#000'
     },
     backButton: {
-        marginTop: 10,
-        marginLeft: 20,
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        padding: 10,
+        position: 'absolute',
+        top: "5%",
+        left: "5%",
+        backgroundColor: 'rgba(96, 165, 250, 0.3)',
+        padding: "1%",
         borderRadius: 20,
-        alignSelf: 'flex-start'
     },
     content: {
         flex: 1,
-        paddingHorizontal: 25,
-        paddingTop: 20
+        paddingHorizontal: '5%',
+        paddingTop: '15%'
     },
     headerTitle: {
         color: '#fff',
@@ -175,7 +176,7 @@ const styles = StyleSheet.create({
         borderBottomColor: 'rgba(255, 255, 255, 0.1)',
     },
     searchInput: {
-        color: '#fff', 
+        color: '#fff',
         flex: 1,
         marginLeft: 10,
         fontSize: 14
@@ -208,7 +209,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 20
+        marginBottom: '10%'
     },
     continueText: {
         color: '#fff',

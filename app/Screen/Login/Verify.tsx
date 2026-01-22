@@ -1,8 +1,9 @@
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
-import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, TouchableOpacity, ImageBackground, StyleSheet } from 'react-native';
 import Verified from '../../../assets/logo/verified.svg';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function VerifiedScreen() {
     return (
@@ -12,10 +13,13 @@ export default function VerifiedScreen() {
         // >
         <SafeAreaView style={styles.overlay}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.iconCircle} onPress={() => router.back()}>
-                   <Ionicons name="arrow-back" size={24} color="white" />
-                </TouchableOpacity>
-            </View>
+                    <TouchableOpacity style={styles.iconCircle} onPress={router.back}>
+                      <Ionicons name="arrow-back" size={20} color="white" />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.themeCircle}>
+                      <FontAwesome5 name="moon" size={20} color="white" />
+                    </TouchableOpacity>
+                  </View>
 
             <View style={styles.centerContent}>
                 <Text style={styles.title}>Account Verified</Text>
@@ -29,7 +33,7 @@ export default function VerifiedScreen() {
 
             <TouchableOpacity
                 style={styles.primaryButton}
-              onPress={() => router.navigate('./In')}
+                onPress={() => router.navigate('./In')}
             >
                 <Text style={styles.buttonText}>Start Exploring</Text>
             </TouchableOpacity>
@@ -40,16 +44,26 @@ export default function VerifiedScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#000' },
-    overlay: { flex: 1, paddingHorizontal: 25, paddingBottom: 40, backgroundColor: '#000' },
+    overlay: { flex: 1,  backgroundColor: '#000' },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 20
+        marginTop: 20,
     },
     iconCircle: {
-        backgroundColor: 'rgba(255,255,255,0.15)',
-        padding: 10,
-        borderRadius: 25
+        position: 'absolute',
+        top: "5%",
+        left: "5%",
+        backgroundColor: 'rgba(96, 165, 250, 0.3)',
+        padding: "1%",
+        borderRadius: 20,
+    },
+    themeCircle: {
+        position: 'absolute',
+        top: "5%",
+        right: "5%",
+        padding: "1%",
+        borderRadius: 20,
     },
     centerContent: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     title: { color: '#fff', fontSize: 24, fontWeight: '800', marginBottom: 10 },
@@ -105,8 +119,12 @@ const styles = StyleSheet.create({
 
     // Button Style
     primaryButton: {
-        backgroundColor: '#34495E', // Match the dark blue/grey button
-        height: 60,
+        backgroundColor: 'rgba(43, 77, 255, 1)', // Match the dark blue/grey button
+        height: "7%",
+        width: '90%',
+        alignSelf: 'center',
+        position: 'absolute',
+        bottom: "20%",
         borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',

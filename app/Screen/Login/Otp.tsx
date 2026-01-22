@@ -3,7 +3,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { usePrivy } from '@privy-io/expo';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function OTPScreen() {
     const [timer, setTimer] = useState(12);
@@ -63,8 +64,8 @@ export default function OTPScreen() {
                     <TouchableOpacity style={styles.iconCircle} onPress={router.back}>
                         <Ionicons name="arrow-back" size={20} color="white" />
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.iconCircle}>
-                        <FontAwesome5 name="moon" size={20} color="black" />
+                    <TouchableOpacity style={styles.themeCircle}>
+                        <FontAwesome5 name="moon" size={20} color="white" />
                     </TouchableOpacity>
                 </View>
 
@@ -92,20 +93,20 @@ export default function OTPScreen() {
                             </View>
                         ))}
                     </View>
-                    <TouchableOpacity style={styles.buttonMain}  onPress={()=>router.navigate('/Screen/Login/Verify')}>
-                    <Text style={styles.buttonText}>Verify</Text>
-                </TouchableOpacity>
+                    <TouchableOpacity style={styles.buttonMain} onPress={() => router.navigate('/Screen/Login/Verify')}>
+                        <Text style={styles.buttonText}>Verify</Text>
+                    </TouchableOpacity>
 
 
 
-                <TouchableOpacity onPress={handleResend} disabled={timer > 0}>
-                    <Text style={styles.resendText}>
-                        Resend OTP <Text style={styles.timerText}>(00:{timer < 10 ? `0${timer}` : timer})</Text>
-                    </Text>
-                </TouchableOpacity>
-            </View>
+                    <TouchableOpacity onPress={handleResend} disabled={timer > 0}>
+                        <Text style={styles.resendText}>
+                            Resend OTP <Text style={styles.timerText}>(00:{timer < 10 ? `0${timer}` : timer})</Text>
+                        </Text>
+                    </TouchableOpacity>
+                </View>
 
-        </KeyboardAvoidingView>
+            </KeyboardAvoidingView>
         </SafeAreaView >
         // </ImageBackground>
     );
@@ -119,82 +120,68 @@ const styles = StyleSheet.create({
     },
     overlay: {
         flex: 1,
-        paddingHorizontal: 24,
         backgroundColor: '#000'
     },
     keyboardAvoid: {
         flex: 1,
     },
     header: {
+        padding: "1%",
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 20
+        marginTop: 20,
     },
     iconCircle: {
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        padding: 10,
-        borderRadius: 20
+        position: 'absolute',
+        top: "5%",
+        left: "5%",
+        backgroundColor: 'rgba(96, 165, 250, 0.3)',
+        padding: "1%",
+        borderRadius: 20,
+    },
+    themeCircle: {
+        position: 'absolute',
+        top: "5%",
+        right: "5%",
+        padding: "1%",
+        borderRadius: 20,
     },
     content: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+    
     },
     title: {
         color: '#fff',
         fontSize: 28, fontWeight: 'bold',
         marginBottom: 20
     },
-    subtitle: {
-        color: '#d1d5db',
-        textAlign: 'center',
-        lineHeight: 22,
-        marginBottom: 30
-    },
-    bold: {
-        fontWeight: 'bold',
-        color: '#fff'
-    },
-    input: {
-        width: '100%',
-        height: 55,
-        borderWidth: 1,
-        borderColor: '#4b5563',
-        borderRadius: 15,
-        paddingHorizontal: 20,
-        color: '#fff',
-        backgroundColor: 'rgba(255,255,255,0.05)'
-    },
-    button: {
-        width: '100%',
-        height: 55,
-        backgroundColor: 'rgba(37, 99, 235, 0.4)', // Faded blue from image
-        borderRadius: 15,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 20,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)'
-    },
+  
+
+    
     buttonMain: {
-        width: '100%',
+        width: '90%',
         height: 55,
-        backgroundColor: '#3b82f6', // Bright blue for active verify
+        backgroundColor: 'rgba(43, 77, 255, 1)', // Bright blue for active verify
         borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 30,
+    
     },
     buttonText: {
         color: '#fff',
         fontSize: 18,
         fontWeight: '600'
+        
     },
     otpContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
-        marginVertical: 20
+        marginVertical: 20,
+        paddingHorizontal: "3%"
     },
     otpBox: {
         width: 45,

@@ -1,8 +1,9 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, SafeAreaView, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Modal } from 'react-native';
 import Pin from "../../../assets/logo/pin.svg";
+import { SafeAreaView } from 'react-native-safe-area-context';
 export default function LocationPermissionScreen() {
   return (
     // <ImageBackground 
@@ -54,12 +55,12 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
   safeArea: { flex: 1 ,backgroundColor: '#000'},
   backButton: { 
-    marginTop: 20, 
-    marginLeft: 20, 
-    backgroundColor: 'rgba(255,255,255,0.1)', 
-    padding: 10, 
-    borderRadius: 20, 
-    alignSelf: 'flex-start' 
+    position: 'absolute',
+    top: "5%",
+    left: "5%",
+    backgroundColor: 'rgba(96, 165, 250, 0.3)',
+    padding: "1%",
+    borderRadius: 20,
   },
   modalContainer: { 
     flex: 1, 

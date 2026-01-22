@@ -31,10 +31,10 @@ export default function LoginScreen() {
 
       <View style={styles.header}>
         <TouchableOpacity style={styles.iconCircle} onPress={router.back}>
-          <Ionicons name="arrow-back" size={24} color="white" />
+          <Ionicons name="arrow-back" size={20} color="white" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconCircle}>
-          <FontAwesome5 name="moon" size={24} color="black" />
+        <TouchableOpacity style={styles.themeCircle}>
+          <FontAwesome5 name="moon" size={20} color="white" />
         </TouchableOpacity>
       </View>
 
@@ -75,19 +75,35 @@ export default function LoginScreen() {
 }
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
-  overlay: { flex: 1, paddingHorizontal: 24, backgroundColor: '#000' },
+  overlay: { flex: 1, backgroundColor: '#000' },
   header: {
+    padding: "1%",
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 20,
 
   },
   iconCircle: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    padding: 10,
-    borderRadius: 20
+    position: 'absolute',
+    top: "5%",
+    left: "5%",
+    backgroundColor: 'rgba(96, 165, 250, 0.3)',
+    padding: "1%",
+    borderRadius: 20,
   },
-  content: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  themeCircle: {
+    position: 'absolute',
+    top: "5%",
+    right: "5%",
+    padding: "1%",
+    borderRadius: 20,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: "5%",
+  },
   title: { color: '#fff', fontSize: 28, fontWeight: 'bold', marginBottom: 20 },
   subtitle: { color: '#d1d5db', textAlign: 'center', lineHeight: 22, marginBottom: 30 },
   bold: { fontWeight: 'bold', color: '#fff' },
@@ -110,7 +126,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)'
+    borderColor: 'rgba(241, 245, 249, 1)'
   },
   buttonMain: {
     width: '100%',

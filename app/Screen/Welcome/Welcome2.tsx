@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Pin from "../../../assets/logo/pin.svg";
-
+import Logo from "../../../assets/logo/1.svg";
 export default function WelcomeScreen() {
     return (
         <View style={styles.welcomeContainer}>
@@ -11,12 +11,12 @@ export default function WelcomeScreen() {
                 <Ionicons name="arrow-back" size={20} color="white" />
             </TouchableOpacity>
             <View style={styles.mapHeader}>
-                <Pin width={120} height={150} />
+                <Pin style={{ width: "40%", height: "60%", top: "15%" }} />
             </View>
             <View style={styles.content}>
                 <Text style={styles.welcomeSubtitle}>Welcome To</Text>
-                <Text style={styles.brandNameLarge}>PRESENZ</Text>
-                <Text style={styles.exploreText}>Explore what&apos;s happening near you</Text>
+                <Logo style={{ width: "80%", height: "20%" }} />
+                <Text style={styles.exploreText}>Explore what's happening near you</Text>
                 <TouchableOpacity style={styles.getStartedButton} onPress={() => { router.navigate('../Login/Login') }}>
                     <Text style={styles.buttonText}>Get Started</Text>
                 </TouchableOpacity>
@@ -32,30 +32,28 @@ const styles = StyleSheet.create({
     },
     backButton: {
         position: 'absolute',
-        top: 50, left: 20,
-        zIndex: 10,
-        backgroundColor: 'rgba(30, 58, 138, 0.5)',
-        padding: 10,
-        borderRadius: 100
+        top: "5%",
+        left: "5%",
+        backgroundColor: 'rgba(96, 165, 250, 0.3)',
+        padding: "1%",
+        borderRadius: 20,
     },
     mapHeader: {
         height: '50%',
         justifyContent: 'flex-end',
         alignItems: 'center'
     },
-    placeholderPinLarge: {
-        width: 80, height: 110,
-        backgroundColor: '#6366f1',
-        marginBottom: -20
-    },
     content: {
-        flex: 1, alignItems: 'center',
-        paddingTop: 40,
-        paddingHorizontal: 40
+        flex: 1,
+        alignItems: 'center',
+        paddingTop: "15%",
+        paddingHorizontal: "5%"
     },
     welcomeSubtitle: {
         color: '#fff',
-        fontSize: 18, opacity: 0.8
+        fontSize: 18,
+        opacity: 0.8,
+        marginBottom: "5%"
     },
     brandNameLarge: {
         color: '#fff',
@@ -66,11 +64,13 @@ const styles = StyleSheet.create({
     },
     exploreText: {
         color: '#9ca3af',
-        fontSize: 14,
-        marginBottom: 40
+        fontSize: 18,
+        marginTop: 100,
     },
     getStartedButton: {
         width: '100%',
+        position: 'absolute',
+        bottom: "15%",
         backgroundColor: '#2563eb',
         paddingVertical: 16,
         borderRadius: 12,
