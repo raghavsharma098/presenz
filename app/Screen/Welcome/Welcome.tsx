@@ -17,24 +17,24 @@ export default function Welcome() {
         resizeMode="cover"
       >
         <View style={styles.overlay}>
-          {/* Logo Section */}
           <View style={styles.logoContainer}>
             <Pin
               style={{
-                width: "47%",
-                height: "37%",
+                width: "40%",
+                height: "60%",
+                marginBottom: "-15%"
               }}
             />
             <Logo width={"80%"} height={"20%"} />
+             <Text style={styles.brandName}>BE HERE</Text>
           </View>
-
           {/* Form Section */}
           <View style={styles.formContainer}>
             <View style={styles.checkboxRow}>
               <Checkbox
                 value={agreeTerms}
                 onValueChange={setAgreeTerms}
-                color={agreeTerms ? '#3b82f6' : '#ffffff'}
+                color={agreeTerms ? 'rgba(43, 77, 255, 1)' : '#ffffff'}
               />
               <Text style={styles.checkboxLabel}>
                 I have read and agree to <Text style={styles.boldText}>Presenz Terms of Use.</Text>
@@ -45,7 +45,7 @@ export default function Welcome() {
               <Checkbox
                 value={ageConfirm}
                 onValueChange={setAgeConfirm}
-                color={ageConfirm ? '#3b82f6' : '#ffffff'}
+                color={ageConfirm ? 'rgba(43, 77, 255, 1)' : '#ffffff'}
               />
               <Text style={styles.checkboxLabel}>
                 I confirm that I am at least 16 years old.
@@ -75,54 +75,46 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(0,0,0,0.8)',
     justifyContent: 'center',
-    paddingHorizontal: 30
+    paddingHorizontal: "5%"
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 1
-  },
-  placeholderPin: {
-    width: 100,
-    height: 130,
-    backgroundColor: '#6366f1',
-    borderRadius: 50,
-    marginBottom: 10
+    justifyContent: 'center',
+    paddingBottom: "10%",
+    marginBottom: "5%"
   },
   brandName: {
-    color: '#fff',
-    fontSize: 36,
+    color: 'rgba(129, 222, 255, 1)',
+    fontSize: 18,
     fontWeight: 'bold',
-    letterSpacing: 6
-  },
-  tagline: {
-    color: '#22d3ee',
-    fontSize: 12,
-    letterSpacing: 4,
-    fontWeight: '600'
+    letterSpacing: 8,
+    marginTop: "-2%"
   },
   formContainer: {
-    width: '100%'
+    width: '100%',
+
   },
   checkboxRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20
+    marginBottom: "5%",
+    paddingHorizontal: "3%"
   },
   checkboxLabel: {
     color: '#fff',
     fontSize: 11,
-    marginLeft: 12,
+    marginLeft: "5%",
     flexShrink: 1
   },
   boldText: { fontWeight: 'bold' },
   button: {
-    backgroundColor: '#2563eb',
-    paddingVertical: 16,
+    backgroundColor: 'rgba(43, 77, 255, 1)',
+    paddingVertical: "4%",
     borderRadius: 12,
     alignItems: 'center',
-    marginTop: 10
+    marginTop: "15%"
   },
   buttonDisabled: {
     backgroundColor: '#4b5563'
