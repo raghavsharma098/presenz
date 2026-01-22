@@ -1,0 +1,136 @@
+// import { View, Text, TouchableOpacity } from 'react-native';
+// import { useState } from 'react';
+// import axios from 'axios';
+// import { router } from 'expo-router';
+
+// import {
+//   usePrivy,
+//   useEmbeddedEthereumWallet,
+//   getUserEmbeddedEthereumWallet,
+//   useLoginWithOAuth,
+// } from '@privy-io/expo';
+// import Map from '../../Map';
+// export default function Main() {
+
+//   const { user, isReady } = usePrivy();
+//   const { create, wallets } = useEmbeddedEthereumWallet();
+
+//   const [loading, setLoading] = useState(false);
+
+
+//   const getEmailFromUser = (user: any): string | null => {
+
+//     if (user?.email?.address) {
+//       return user.email.address;
+//     }
+
+
+//     if (user?.linked_accounts?.length) {
+//       const googleAccount = user.linked_accounts.find(
+//         (acc: any) => acc.type === 'google_oauth'
+//       );
+
+//       if (googleAccount?.email) {
+//         return googleAccount.email;
+//       }
+//     }
+
+//     return null;
+//   };
+
+
+//   const { login } = useLoginWithOAuth({
+//     onSuccess: async (loggedInUser) => {
+//       console.log('User logged in:', loggedInUser.id);
+//       await handleLogin(loggedInUser);
+//     },
+//     onError: (err) => {
+//       console.error('OAuth error:', err);
+//     },
+//   });
+
+
+//   const handleLogin = async (loggedInUser = user) => {
+//     try {
+//       if (!isReady || !loggedInUser) {
+//         console.log('Privy not ready or user not logged in');
+//         return;
+//       }
+
+//       setLoading(true);
+
+//       let account = getUserEmbeddedEthereumWallet(loggedInUser);
+//       if (!account) {
+//         await create?.();
+//         account = getUserEmbeddedEthereumWallet(loggedInUser);
+//       }
+
+//       const walletAddress = account?.address;
+
+//       if (!walletAddress) {
+//         console.error('Wallet address not found');
+//         return;
+//       }
+
+//       // Get email from Google auth
+//       const email = getEmailFromUser(loggedInUser);
+
+//       if (!email) {
+//         console.error('Email not found from Google auth', loggedInUser);
+//         return;
+//       }
+
+//       const res = await axios.post(
+//         'http://10.0.2.2:3000/api/login',
+//         {
+//           Email: email,
+//           Privy_Id: loggedInUser.id,
+//           Wallet_Address: walletAddress,
+//         },
+//         {
+//           headers: {
+//             'Content-Type': 'application/json',
+//           },
+//           timeout: 10000, 
+//         }
+//       );
+//       const result = res.data;
+//       if (result.success === true) {
+//         router.navigate('/Map');
+//       } else {
+//         console.log('Login failed:', result);
+//       }
+//     } catch (err) {
+//       console.error('Login error:', err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <View style={{ marginTop: 100, alignItems: 'center' }}>
+//       <TouchableOpacity
+//         // onPress={() => login({ provider: 'google' })}
+//         onPress={() => {router.navigate('/Map')}}
+//         style={{
+//           backgroundColor: '#007BFF',
+//           padding: 15,  
+//           marginTop: 20,
+//           width: '80%',
+//           borderRadius: 5,
+//         }}
+//         disabled={loading}
+//       >
+//         <Text style={{ color: 'white', textAlign: 'center' }}>
+//           {loading ? 'Logging in...' : 'Login with Google'}
+//         </Text>
+//       </TouchableOpacity>
+//       {user && (
+//         <Text style={{ marginTop: 20 }}>
+//           Logged in as: {user.id}
+//         </Text>
+//       )}
+//     </View>
+//   );
+// }
+
