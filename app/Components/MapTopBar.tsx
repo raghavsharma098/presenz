@@ -1,14 +1,8 @@
-//  <TouchableOpacity onPress={() => { }} style={{ position: 'absolute', right: 10, padding: 5 }}>
-//       {/* <TouchableOpacity onPress={() => { logout(); router.replace('/Login'); }} style={{ position: 'absolute', right: 10, padding: 5 }}> */}
-//         <Text style={{ color: 'white', fontSize: 14 }}>Logout</Text>
-//       </TouchableOpacity>
-
-
-
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import RangeSelector from '../Modals/RangeSelector';
+import TranslatableText from './TranslatableText';
 
 export default function MapTopBar() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -53,7 +47,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     position: 'absolute',
-    top: "13%", 
+    top: "10%", 
     width: '70%',
     height: "5%",
     justifyContent: 'center',

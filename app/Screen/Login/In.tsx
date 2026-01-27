@@ -6,7 +6,7 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 export default function FinalWelcomeScreen() {
     return (
-        // <ImageBackground source={require('./assets/space-bg.png')} style={styles.container}>
+        <ImageBackground source={require('../../../assets/background/welcome.png')} style={styles.container}>
         <SafeAreaView style={styles.overlay}>
             <View style={styles.header}>
                 <TouchableOpacity style={styles.iconCircle} onPress={router.back}>
@@ -20,7 +20,7 @@ export default function FinalWelcomeScreen() {
             <View style={styles.centerContent}>
                 {/* Your 3D Pin SVG here */}
                 <View style={styles.pinWrapper}>
-                    <Pin width={80} height={110} />
+                    <Pin width={150} height={170} />
                 </View>
 
                 <Text style={styles.hugeTitle}>You’re in.</Text>
@@ -32,7 +32,7 @@ export default function FinalWelcomeScreen() {
                 <Text style={styles.buttonText}>Enter PRESENZ</Text>
             </TouchableOpacity>
         </SafeAreaView>
-        // </ImageBackground>
+         </ImageBackground>
     );
 }
 
@@ -41,11 +41,10 @@ export default function FinalWelcomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#000'
     },
     overlay: {
         flex: 1,
-        backgroundColor: '#000'
+        backgroundColor: 'rgb(0, 0, 0,0.6)'
     },
     header: {
         flexDirection: 'row',

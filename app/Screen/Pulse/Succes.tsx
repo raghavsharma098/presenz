@@ -1,8 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView, Modal } from 'react-native';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { StyleSheet, Text, View, TouchableOpacity, Modal } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Token from '@/app/Modals/Token';
+import TokenIcon from '@/assets/logo/token.svg';
+import { useLocalSearchParams } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface FeedbackScreenProps {
     status?: 'success' | 'error';
@@ -11,6 +14,10 @@ interface FeedbackScreenProps {
 const FeedbackScreen: React.FC<FeedbackScreenProps> = ({ status = 'success' }) => {
     const isSuccess = status === 'success';
     const [modalVisible, setModalVisible] = React.useState(false);
+    const params = useLocalSearchParams();
+    console.log('Succes.tsx params:', params);
+    const reward = params.reward ? Number(params.reward) : 0;
+    console.log('Succes.tsx reward:', reward);
     // Theme configuration based on status
     const theme = {
         gradient: isSuccess
@@ -43,8 +50,8 @@ const FeedbackScreen: React.FC<FeedbackScreenProps> = ({ status = 'success' }) =
 
                         {theme.showEarnings && (
                             <View style={styles.earningsContainer}>
-                                <Text style={styles.earningsText}>You have earned +2 $PSZ</Text>
-                                <MaterialCommunityIcons name="hexagon-slice-6" size={18} color="#7B61FF" style={{ marginLeft: 5 }} />
+                                <Text style={styles.earningsText}>You have earned +{reward} $PSZ</Text>
+                                <TokenIcon width={18} height={18} style={{ marginLeft: 5 }} />
                             </View>
                         )}
                     </View>

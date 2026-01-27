@@ -13,17 +13,23 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const HOBBIES = [
-  "Art", "Music", "Nightlife",
-  "Cinema & Media", "Theatre",
-  "Wellness", "Festivals & Events",
-  "Outdoor/Nature", "Sports/Fitness",
-  "Food/Drinks", "Street / Shopping",
-  "Urban Moment"
+import { useAppSelector } from '../../store/hooks';
+
+const HOBBY_KEYS = [
+  'hobbyArt', 'hobbyMusic', 'hobbyNightlife',
+  'hobbyCinema', 'hobbyTheatre',
+  'hobbyWellness', 'hobbyFestivals',
+  'hobbyOutdoor', 'hobbySports',
+  'hobbyFood', 'hobbyStreet',
+  'hobbyUrban'
 ];
 
 export default function HobbiesScreen() {
-  const [selectedHobbies, setSelectedHobbies] = useState(["Nightlife", "Outdoor/Nature"]);
+  const translations = useAppSelector((state: any) => state.language.translations);
+  const [selectedHobbies, setSelectedHobbies] = useState([
+    translations.hobbyNightlife,
+    translations.hobbyOutdoor
+  ]);
 
   const toggleHobby = (hobby: string) => {
     if (selectedHobbies.includes(hobby)) {
@@ -34,52 +40,53 @@ export default function HobbiesScreen() {
   };
 
   return (
-    // <ImageBackground 
-    //   source={{ uri: 'https://images.unsplash.com/photo-1506318137071-a8e063b49ec2?auto=format&fit=crop&q=80' }} 
-    //   style={styles.background}
-    // >
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="white" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Hobbies</Text>
-        <View style={{ width: 40 }} />
-      </View>
+    <ImageBackground
+      source={require('../../../assets/background/welcome.png')}
+      style={styles.background}
+    >
+      <SafeAreaView style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="white" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>{translations.hobbies}</Text>
+          <View style={{ width: 40 }} />
+        </View>
 
-      {/* Chips Container */}
-      <ScrollView contentContainerStyle={styles.chipContainer}>
-        {HOBBIES.map((hobby) => {
-          const isSelected = selectedHobbies.includes(hobby);
-          return (
-            <TouchableOpacity
-              key={hobby}
-              onPress={() => toggleHobby(hobby)}
-              style={[
-                styles.chip,
-                isSelected ? styles.chipSelected : styles.chipUnselected
-              ]}
+        {/* Chips Container */}
+        <ScrollView contentContainerStyle={styles.chipContainer}>
+          {HOBBY_KEYS.map((key) => {
+            const hobby = translations[key];
+            const isSelected = selectedHobbies.includes(hobby);
+            return (
+              <TouchableOpacity
+                key={key}
+                onPress={() => toggleHobby(hobby)}
+                style={[
+                  styles.chip,
+                  isSelected ? styles.chipSelected : styles.chipUnselected
+                ]}
+              >
+                <Text style={styles.chipText}>{hobby}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+
+        {/* Bottom Button */}
+        <View style={styles.footer}>
+          <TouchableOpacity onPress={() => router.navigate('/Screen/Login/NightLife')}>
+            <LinearGradient
+              colors={['#4D66FF', '#2948FF']}
+              style={styles.nextButton}
             >
-              <Text style={styles.chipText}>{hobby}</Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
-
-      {/* Bottom Button */}
-      <View style={styles.footer}>
-        <TouchableOpacity onPress={() => router.navigate('/Screen/Login/NightLife')}>
-          <LinearGradient
-            colors={['#4D66FF', '#2948FF']}
-            style={styles.nextButton}
-          >
-            <Text style={styles.nextButtonText}>Next</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
-    // </ImageBackground>
+              <Text style={styles.nextButtonText}>{translations.next}</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
@@ -90,7 +97,8 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: 'rgb(0, 0, 0,0.6)',
+
     padding: '15%',
   },
   header: {
@@ -142,7 +150,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: 30,
- 
+
   },
   nextButton: {
     height: '40%',

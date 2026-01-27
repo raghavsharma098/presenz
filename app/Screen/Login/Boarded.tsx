@@ -10,64 +10,63 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const CAROUSEL_DATA = [
   {
-    title: "Notice\nWhat’s real.",
+
     description: "Live updates, nearby events, and moments that matter all in one place.",
     buttonText: "Start Exploring",
+    backgroundImage: require('@/assets/background/C1.jpeg'),
   },
   {
-    title: "Different Vibes\nDifferent Places",
+
     description: "Find the activities that match your vibe, happening right now around you.",
     buttonText: "Explore Activities",
+    backgroundImage: require('@/assets/background/C2.jpeg'),
   },
   {
-    title: "No Profiles.\nNo Followers.\nJust Presenz.",
+
     description: "Live updates, nearby events, and moments that matter all in one place.",
     buttonText: "Enter Presenz",
+    backgroundImage: require('@/assets/background/C3.jpeg'),
   },
 ];
 interface OnboardingItem {
-  title: string;
+
   description: string;
   buttonText: string;
+  backgroundImage: any;
 }
 export default function OnboardingCarousel() {
   const [index, setIndex] = useState(0);
   const renderItem = ({ item }: { item: OnboardingItem }) => (
-    <View style={styles.slideContainer}>
-      {/* Dynamic Main Title */}
-      <View style={styles.textOverlay}>
-        <Text style={styles.mainTitle}>{item.title}</Text>
+    <ImageBackground source={item.backgroundImage} style={styles.background}>
+      <View style={styles.slideContainer}>
+        {/* Dynamic Main Title */}
+        <View style={styles.textOverlay} />
+        {/* Bottom Frosted Glass Box */}
+        <BlurView intensity={20} tint="dark" style={styles.blurBox}>
+          <Text style={styles.descriptionText}>{item.description}</Text>
+
+          {/* Pagination Dots */}
+          <View style={styles.paginationContainer}>
+            {CAROUSEL_DATA.map((_, i) => (
+              <View
+                key={i}
+                style={[styles.dot, index === i ? styles.activeDot : styles.inactiveDot]}
+              />
+            ))}
+          </View>
+
+          <TouchableOpacity style={styles.actionButton} onPress={() => { router.navigate('./Location') }}>
+            <Text style={styles.buttonText}>{item.buttonText}</Text>
+          </TouchableOpacity>
+        </BlurView>
       </View>
-
-      {/* Bottom Frosted Glass Box */}
-      <BlurView intensity={20} tint="dark" style={styles.blurBox}>
-        <Text style={styles.descriptionText}>{item.description}</Text>
-
-        {/* Pagination Dots */}
-        <View style={styles.paginationContainer}>
-          {CAROUSEL_DATA.map((_, i) => (
-            <View
-              key={i}
-              style={[styles.dot, index === i ? styles.activeDot : styles.inactiveDot]}
-            />
-          ))}
-        </View>
-
-        <TouchableOpacity style={styles.actionButton} onPress={() => { router.navigate('./Location') }}>
-          <Text style={styles.buttonText}>{item.buttonText}</Text>
-        </TouchableOpacity>
-      </BlurView>
-    </View>
+    </ImageBackground>
   );
 
   return (
     <View style={styles.container}>
-      {/* <ImageBackground 
-        source={require('./assets/city-bg.png')} // Replace with your city background
-        style={styles.background}
-      > */}
       <SafeAreaView style={{ flex: 1 }}>
-         <TouchableOpacity style={styles.backButton} onPress={router.back}>
+        <TouchableOpacity style={styles.backButton} onPress={router.back}>
           <Ionicons name="arrow-back" size={20} color="white" />
         </TouchableOpacity>
 
@@ -81,8 +80,8 @@ export default function OnboardingCarousel() {
           renderItem={renderItem}
         />
       </SafeAreaView>
-      {/* </ImageBackground> */}
     </View>
+     
   );
 }
 

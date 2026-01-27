@@ -1,15 +1,27 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Modal } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Modal, Alert, ActivityIndicator } from 'react-native';
+import * as Location from 'expo-location';
 import Pin from "../../../assets/logo/pin.svg";
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAppSelector } from '../../store/hooks';
 export default function LocationPermissionScreen() {
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const translations = useAppSelector((state: any) => state.language.translations);
+  // Helper to fetch location with timeout
+  const getLocationWithTimeout = async (timeoutMs = 10000): Promise<Location.LocationObject> => {
+    return Promise.race([
+      Location.getCurrentPositionAsync({}),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Location request timed out.')), timeoutMs))
+    ]);
+  };
   return (
-    // <ImageBackground 
-    //   source={require('./assets/space-bg.png')} 
-    //   style={styles.container}
-    // >
+    <ImageBackground 
+      source={require('../../../assets/background/welcome.png')} 
+      style={styles.container}
+    >
       <SafeAreaView style={styles.safeArea}>
         {/* Back Button */}
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -25,35 +37,35 @@ export default function LocationPermissionScreen() {
                <Pin width={100} height={130} />
             </View>
 
-            <Text style={styles.title}>Sense your surroundings</Text>
+            <Text style={styles.title}>{translations.senseSurroundings}</Text>
             
             <Text style={styles.description}>
-              PRESENZ uses your location to show moments near you. Your location is never shared with others.
+              {translations.locationDesc}
             </Text>
 
             <TouchableOpacity 
               style={styles.allowButton}
-              onPress={() => {router.navigate('/Screen/Login/Language')}}
+              disabled={loading}
+              onPress={()=>router.navigate('/Screen/Login/Language')}
             >
-              <Text style={styles.allowText}>Allow Location</Text>
+               <Text style={styles.allowText}>{translations.allowLocation}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
               style={styles.notNowButton}
-    
             >
-              <Text style={styles.notNowText}>Not now</Text>
+              <Text style={styles.notNowText}>{translations.notNow}</Text>
             </TouchableOpacity>
           </View>
         </View>
       </SafeAreaView>
-    // </ImageBackground>
+     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  safeArea: { flex: 1 ,backgroundColor: '#000'},
+  container: { flex: 1 },
+  safeArea: { flex: 1 ,backgroundColor: 'rgb(0, 0, 0,0.6)'},
   backButton: { 
     position: 'absolute',
     top: "5%",
@@ -75,11 +87,11 @@ const styles = StyleSheet.create({
     padding: 30,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.3)', // Subtle blue glow border
-    shadowColor: '#3b82f6',
+    shadowColor: 'rgba(43, 77, 255, 1)',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 1,
     shadowRadius: 20,
+    elevation: 15, // for Android
   },
   iconContainer: { marginBottom: 30 },
   placeholderPin: { width: 100, height: 130, backgroundColor: '#4f46e5', borderRadius: 20 },

@@ -4,10 +4,12 @@ import Checkbox from 'expo-checkbox';
 import Pin from "../../../assets/logo/pin.svg";
 import Logo from "../../../assets/logo/1.svg";
 import { router } from 'expo-router';
+import { useAppSelector } from '../../store/hooks';
 
 export default function Welcome() {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [ageConfirm, setAgeConfirm] = useState(false);
+  const translations = useAppSelector((state: any) => state.language.translations);
 
   return (
     <View style={styles.container}>
@@ -26,7 +28,7 @@ export default function Welcome() {
               }}
             />
             <Logo width={"80%"} height={"20%"} />
-            <Text style={styles.brandName}>BE HERE</Text>
+            <Text style={styles.brandName}>{translations.beHere}</Text>
           </View>
           {/* Form Section */}
           <View style={styles.formContainer}>
@@ -37,7 +39,7 @@ export default function Welcome() {
                 color={agreeTerms ? 'rgba(43, 77, 255, 1)' : '#ffffff'}
               />
               <Text style={styles.checkboxLabel}>
-                I have read and agree to <Text style={styles.boldText}>Presenz Terms of Use.</Text>
+                {translations.agreeTerms}
               </Text>
             </View>
 
@@ -48,7 +50,7 @@ export default function Welcome() {
                 color={ageConfirm ? 'rgba(43, 77, 255, 1)' : '#ffffff'}
               />
               <Text style={styles.checkboxLabel}>
-                I confirm that I am at least 16 years old.
+                {translations.ageConfirm}
               </Text>
             </View>
             <TouchableOpacity
@@ -56,7 +58,7 @@ export default function Welcome() {
               disabled={!agreeTerms || !ageConfirm}
               onPress={() => router.navigate('/Screen/Welcome/Welcome2')}
             >
-              <Text style={styles.buttonText}>Continue</Text>
+              <Text style={styles.buttonText}>{translations.continue}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -87,7 +89,7 @@ const styles = StyleSheet.create({
     color: 'rgba(129, 222, 255, 1)',
     fontSize: 18,
     fontWeight: 'bold',
-    letterSpacing: 8,
+    letterSpacing: 6,
     marginTop: "-2%"
   },
   formContainer: {

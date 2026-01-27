@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, Animated, Easing, SafeAreaView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import axios from 'axios';
 
 const STAGES = [
   { title: 'Uploading', sub: '' },
@@ -13,8 +15,8 @@ const STAGES = [
 export default function LoadingScreen() {
   const [currentStage, setCurrentStage] = useState(0);
   const spinValue = useRef(new Animated.Value(0)).current;
+  const params = useLocalSearchParams();
 
-  // Rotation Logic
   useEffect(() => {
     Animated.loop(
       Animated.timing(spinValue, {
@@ -26,12 +28,46 @@ export default function LoadingScreen() {
     ).start();
   }, [spinValue]);
 
-  // Stage Cycling Logic (for preview)
+  // Upload logic
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentStage((prev) => (prev + 1) % STAGES.length);
-    }, 3000);
-    return () => clearInterval(timer);
+    const upload = async () => {
+      try {
+        setCurrentStage(0); // Uploading
+        const formData = new FormData();
+        formData.append('file', {
+          uri: params.mediaUri,
+          name: (params.mediaUri as string)?.split('/')?.pop() || 'upload',
+          type: params.mediaType === 'image' ? 'image/jpeg' : 'video/mp4',
+        } as any);
+        formData.append('description', params.description as string);
+        formData.append('location[lat]', params.lat as string);
+        formData.append('location[long]', params.lon as string);
+        formData.append('Privy_Id', params.privyId as string);
+
+        // Simulate stage progress
+        setTimeout(() => setCurrentStage(1), 1200); // AI Safety Check
+        setTimeout(() => setCurrentStage(2), 2200); // Detecting Landmark
+        setTimeout(() => setCurrentStage(3), 3200); // Auto-Categorizing
+
+        const response = await axios.post('https://localhost:300/api/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'ngrok-skip-browser-warning': 'true',
+          },
+        });
+        if (response.status === 200 || response.status === 201) {
+          console.log('Upload response:', response.data);
+          const reward = response.data?.data?.reward ?? 0;
+          setTimeout(() => router.replace({ pathname: '/Screen/Pulse/Succes', params: { reward: String(reward) } }), 1500);
+        } else {
+          setTimeout(() => router.replace('/Screen/Pulse/Failure'), 1500);
+        }
+      } catch (e) {
+        setTimeout(() => router.replace('/Screen/Pulse/Failure'), 1500);
+      }
+    };
+    upload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const spin = spinValue.interpolate({
@@ -47,11 +83,7 @@ export default function LoadingScreen() {
       >
         <View style={styles.card}>
           <View style={styles.spinnerWrapper}>
-            {/* The Background Ring (faint) */}
-            
             <View style={styles.backgroundRing} />
-            
-            {/* The Animated Top Ring (Solid) */}
             <Animated.View 
               style={[
                 styles.spinnerBase, 
@@ -59,9 +91,6 @@ export default function LoadingScreen() {
               ]} 
             />
           </View>
-            <Text onPress={()=>{router.navigate('/Screen/Pulse/Succes')}}>s</Text>
-            <Text onPress={()=>{router.navigate('/Screen/Pulse/Failure')}}>f</Text>
-
           <View style={styles.textContainer}>
             <Text style={styles.titleText}>{STAGES[currentStage].title}</Text>
             {STAGES[currentStage].sub !== '' && (
@@ -70,7 +99,6 @@ export default function LoadingScreen() {
           </View>
         </View>
       </LinearGradient>
-    
     </SafeAreaView>
   );
 }

@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
-
+import axios from 'axios';
+import TokenIcon from '../../assets/logo/token.svg'
+import { usePrivyUser } from '../Screen/Login/Otp';
 // Interface for Activity Items
 interface ActivityItem {
   id: string;
@@ -21,6 +23,34 @@ const RECENT_ACTIVITY: ActivityItem[] = [
 ];
 
 export default function Token({ onClose }: { onClose: () => void }) {
+
+  const [balance, setBalance] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const user = usePrivyUser();
+  const privyId = user?.id || '';
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(`https://localhost:300/api/${privyId}`,
+          {
+            headers: {
+              'ngrok-skip-browser-warning': 'true',
+            },
+          });
+        setBalance(res.data.balance);
+      } catch (err) {
+        setBalance(null);
+        console.error('Failed to fetch balance:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBalance();
+  }, [privyId]);
+
+
   return (
     <View style={styles.overlay}>
       <TouchableOpacity style={styles.overlayTouchable} onPress={onClose} />
@@ -35,8 +65,10 @@ export default function Token({ onClose }: { onClose: () => void }) {
 
         {/* Token Balance */}
         <View style={styles.tokenBalanceContainer}>
-          <MaterialCommunityIcons name="hexagon-slice-6" size={28} color="#7B61FF" />
-          <Text style={styles.balanceText}>1267 <Text style={styles.pszLabel}>PSZ tokens</Text></Text>
+          <TokenIcon style={styles.tokenIcon} />
+          <Text style={styles.balanceText}>
+            {loading ? '...' : balance !== null ? `${balance}` : '...'} 
+            <Text style={styles.pszLabel}>   PSZ tokens</Text></Text>
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -44,7 +76,7 @@ export default function Token({ onClose }: { onClose: () => void }) {
           <View style={styles.powerUpOuterBorder}>
             <View style={styles.powerUpContainer}>
               <Text style={styles.sectionTitle}>Power-Ups</Text>
-              
+
               <TouchableOpacity style={[styles.powerUpCard, { backgroundColor: '#1E2959' }]}>
                 <View>
                   <Text style={styles.powerUpTitle}>Unlock Radius</Text>
@@ -72,7 +104,7 @@ export default function Token({ onClose }: { onClose: () => void }) {
                 <Text style={styles.activityTime}>{item.time}</Text>
               </View>
               <Text style={[
-                styles.activityAmount, 
+                styles.activityAmount,
                 { color: item.isPositive ? '#00FFAD' : '#FF4D4D' }
               ]}>
                 {item.amount}
@@ -188,5 +220,9 @@ const styles = StyleSheet.create({
   activityAmount: {
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  tokenIcon: {
+    marginRight: 1,
+    marginTop: 2,
   },
 });

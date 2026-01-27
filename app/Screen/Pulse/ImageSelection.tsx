@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, TouchableOpacity, Image, Platform, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Platform, Alert, TextInput } from 'react-native';
+import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 import { Entypo, MaterialIcons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { usePrivy } from '@privy-io/expo';
+import axios from 'axios';
 import { Video, ResizeMode } from 'expo-av';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ImageSelection() {
-  const [mediaUri, setMediaUri] = useState<string | null>(null);
-  const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
+  const { user } = usePrivy();
+  const params = useLocalSearchParams();
+  const [mediaUri, setMediaUri] = useState<string | null>(params.mediaUri ? String(params.mediaUri) : null);
+  const [mediaType, setMediaType] = useState<'image' | 'video' | null>(params.mediaType === 'video' || params.mediaType === 'image' ? params.mediaType as 'image' | 'video' : null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -51,7 +58,7 @@ export default function ImageSelection() {
         allowsEditing: true,
         aspect: [3, 4],
         quality: 0.9,
-        videoMaxDuration: 60, // 1 minute max
+        videoMaxDuration: 20, // 20 seconds max
       });
 
       const canceled = typeof (result as any).canceled === 'boolean' ? (result as any).canceled : (result as any).cancelled;
@@ -72,6 +79,7 @@ export default function ImageSelection() {
         allowsEditing: true,
         aspect: [3, 4],
         quality: 0.9,
+        videoMaxDuration: 20, // 20 seconds max
       });
 
       const canceled = typeof (result as any).canceled === 'boolean' ? (result as any).canceled : (result as any).cancelled;
@@ -86,11 +94,69 @@ export default function ImageSelection() {
     }
   };
 
+
+  const [description, setDescription] = useState('');
+  // Always use Eiffel Tower coordinates
+  const [location, setLocation] = useState<{ lat: number; lon: number } | null>({
+    lat: 48.855749,
+    lon: 2.290566
+  });
+  const [locLoading] = useState(false);
+
+  const handleCreatePulse = async () => {
+    if (!mediaUri || !mediaType) {
+      alert('Please select an image or video.');
+      return;
+    }
+    if (!description.trim()) {
+      alert('Description is required.');
+      return;
+    }
+    if (!user?.id) {
+      alert('You must be logged in to upload. Please log in first.');
+      return;
+    }
+    if (!location) {
+      alert('Location is required.');
+      return;
+    }
+    if (
+      location.lat === undefined ||
+      location.lon === undefined ||
+      isNaN(location.lat) ||
+      isNaN(location.lon)
+    ) {
+      alert('Location data is incomplete. Please try again.');
+      return;
+    }
+    // Instead of uploading here, navigate to Loading and pass params
+    router.navigate({
+      pathname: '/Screen/Pulse/Loading',
+      params: {
+        mediaUri,
+        mediaType,
+        description,
+        lat: location.lat,
+        lon: location.lon,
+        privyId: user.id,
+      },
+    });
+  };
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.headerRow}>
-        <Text style={styles.title}>Write something......</Text>
-      </View>
+
+      <TextInput
+        style={styles.inputBox}
+        placeholder="Write something..."
+        placeholderTextColor="#aaa"
+        multiline
+        numberOfLines={4}
+        scrollEnabled
+        value={description}
+        onChangeText={setDescription}
+      />
+
+
 
       <View style={styles.previewWrapper}>
         {mediaUri ? (
@@ -107,28 +173,30 @@ export default function ImageSelection() {
               />
             )}
           </View>
-        ) : (
-          <View style={styles.optionsContainer}>
-            <TouchableOpacity onPress={openCamera} activeOpacity={0.8} style={styles.optionButton}>
-              <Entypo name="camera" size={32} color="#2D5AFE" />
-              <Text style={styles.optionText}>Take Photo</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={openCameraVideo} activeOpacity={0.8} style={styles.optionButton}>
-              <MaterialIcons name="videocam" size={32} color="#2D5AFE" />
-              <Text style={styles.optionText}>Take Video</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={openGallery} activeOpacity={0.8} style={styles.optionButton}>
-              <Entypo name="image" size={32} color="#2D5AFE" />
-              <Text style={styles.optionText}>Choose from Gallery</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+        ) : null}
       </View>
 
       <View style={styles.actionsRow}>
-        <TouchableOpacity style={styles.createButton} onPress={() => { router.navigate('./Loading') }}>
-          <Text style={styles.createText}>Create Pulse</Text>
+        <TouchableOpacity
+          style={[styles.createButton, (uploading || locLoading) && { opacity: 0.5 }]}
+          onPress={handleCreatePulse}
+          disabled={uploading || locLoading}
+        >
+          <Text style={styles.createText}>
+            {uploading ? 'Uploading...' : locLoading ? 'Getting location...' : 'Create Pulse'}
+          </Text>
         </TouchableOpacity>
+        {/* Auto-location and 48 hours info */}
+        <View style={styles.infoRow}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2 }}>
+            <Text style={{ color: '#2D5AFE', fontSize: 16, fontWeight: 'bold', marginRight: 6 }}>📍</Text>
+            <Text style={{ color: '#2D5AFE', fontSize: 16, fontWeight: 'bold' }}>Auto - location</Text>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={{ color: '#9CA3AF', fontSize: 14, marginRight: 6 }}>🕒</Text>
+            <Text style={{ color: '#9CA3AF', fontSize: 14 }}>Pulse will be automatically deleted after 48 hours</Text>
+          </View>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -140,8 +208,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#0b1020',
     padding: 16,
   },
-  headerRow: {
-    marginBottom: 12,
+  infoRow: {
+    marginTop: 16,
+    alignItems: 'flex-start',
   },
   title: {
     color: '#fff',
@@ -203,7 +272,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   actionsRow: {
-    paddingVertical: 20,
+
     alignItems: 'center',
   },
   createButton: {
@@ -218,5 +287,18 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  inputBox: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+
+
+    padding: 12,
+    minHeight: 60,
+    maxHeight: 120,
+    marginBottom: 3,
+    // textAlignVertical: 'top',
+    top: 70,
   },
 });

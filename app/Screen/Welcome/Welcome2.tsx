@@ -1,27 +1,36 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Pin from "../../../assets/logo/pin.svg";
 import Logo from "../../../assets/logo/1.svg";
+import { useAppSelector } from '../../store/hooks';
 export default function WelcomeScreen() {
+    const translations = useAppSelector((state: any) => state.language.translations);
     return (
         <View style={styles.welcomeContainer}>
-            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                <Ionicons name="arrow-back" size={20} color="white" />
-            </TouchableOpacity>
-            <View style={styles.mapHeader}>
-                <Pin style={{ width: "40%", height: "60%", top: "15%" }} />
-            </View>
-            <View style={styles.content}>
-                <Text style={styles.welcomeSubtitle}>Welcome To</Text>
-                <Logo style={{ width: "80%", height: "20%" }} />
-                <Text style={styles.exploreText}>Explore what's happening near you</Text>
-                <TouchableOpacity style={styles.getStartedButton} onPress={() => { router.navigate('../Login/Login') }}>
-                    <Text style={styles.buttonText}>Get Started</Text>
+                <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                    <Ionicons name="arrow-back" size={20} color="white" />
                 </TouchableOpacity>
+                <ImageBackground
+                    source={require('../../../assets/background/2.png')}
+                    style={{ flex: 1 ,width: '100%',height: '50%',top:'5%'}}
+                    resizeMode="cover"
+                >
+
+                <View style={styles.mapHeader}>
+                    <Pin style={{ width: "40%", height: "60%", top: "15%" }} />
+                </View>
+                <View style={styles.content}>
+                    <Text style={styles.welcomeSubtitle}>{translations.welcomeTo}</Text>
+                    <Logo style={{ width: "80%", height: "20%" }} />
+                    <Text style={styles.exploreText}>{translations.exploreNearby}</Text>
+                    <TouchableOpacity style={styles.getStartedButton} onPress={() => { router.navigate('../Login/Login') }}>
+                        <Text style={styles.buttonText}>{translations.getStarted}</Text>
+                    </TouchableOpacity>
+                </View>
+        </ImageBackground>
             </View>
-        </View>
     );
 }
 

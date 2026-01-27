@@ -1,34 +1,36 @@
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { usePrivy } from '@privy-io/expo';
 import React from 'react';
-import { View, Text, TouchableOpacity, ImageBackground, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ImageBackground, StyleSheet, Alert } from 'react-native';
 import Verified from '../../../assets/logo/verified.svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+
 export default function VerifiedScreen() {
+
+
     return (
-        // <ImageBackground 
-        //   source={require('./assets/space-bg.png')} 
-        //   style={styles.container}
-        // >
+        <ImageBackground 
+          source={require('../../../assets/background/welcome.png')} 
+          style={styles.container}
+        >
         <SafeAreaView style={styles.overlay}>
             <View style={styles.header}>
-                    <TouchableOpacity style={styles.iconCircle} onPress={router.back}>
-                      <Ionicons name="arrow-back" size={20} color="white" />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.themeCircle}>
-                      <FontAwesome5 name="moon" size={20} color="white" />
-                    </TouchableOpacity>
-                  </View>
+                <TouchableOpacity style={styles.iconCircle} onPress={router.back}>
+                    <Ionicons name="arrow-back" size={20} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.themeCircle}>
+                    <FontAwesome5 name="moon" size={20} color="white" />
+                </TouchableOpacity>
+            </View>
 
             <View style={styles.centerContent}>
                 <Text style={styles.title}>Account Verified</Text>
                 <Text style={styles.subtitle}>You have full access.</Text>
-                <Verified
-                    width={150}
-                    height={150}
-                    style={styles.glowContainer}
-                />
+                <View style={[styles.glowContainer, { width: 150, height: 150 }]}>
+                    <Verified />
+                </View>
             </View>
 
             <TouchableOpacity
@@ -37,14 +39,15 @@ export default function VerifiedScreen() {
             >
                 <Text style={styles.buttonText}>Start Exploring</Text>
             </TouchableOpacity>
+            
         </SafeAreaView>
-        // </ImageBackground>
+        </ImageBackground>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#000' },
-    overlay: { flex: 1,  backgroundColor: '#000' },
+    container: { flex: 1, },
+    overlay: { flex: 1, backgroundColor: 'rgb(0, 0, 0,0.6)' },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -134,5 +137,5 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.5,
         shadowRadius: 10,
     },
-    buttonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' }
+    buttonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
 });

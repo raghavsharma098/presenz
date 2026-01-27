@@ -37,54 +37,54 @@ export default function NightlifeScreen() {
   };
 
   return (
-    // <ImageBackground 
-    //   source={{ uri: 'https://images.unsplash.com/photo-1506318137071-a8e063b49ec2?auto=format&fit=crop&q=80' }} 
-    //   style={styles.background}
-    // >
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="white" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Nightlife</Text>
-        <View style={{ width: 40 }} />
-      </View>
-
-      {/* Options Grid */}
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.chipContainer}>
-          {NIGHTLIFE_OPTIONS.map((item) => {
-            const isSelected = selectedItems.includes(item);
-            return (
-              <TouchableOpacity
-                key={item}
-                onPress={() => toggleSelection(item)}
-                style={[
-                  styles.chip,
-                  isSelected ? styles.chipSelected : styles.chipUnselected
-                ]}
-              >
-                <Text style={styles.chipText}>{item}</Text>
-              </TouchableOpacity>
-            );
-          })}
+    <ImageBackground
+      source={require('../../../assets/background/welcome.png')}
+      style={styles.background}
+    >
+      <SafeAreaView style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color="white" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Nightlife</Text>
+          <View style={{ width: 40 }} />
         </View>
-      </ScrollView>
 
-      {/* Action Button */}
-      <View style={styles.footer}>
-        <TouchableOpacity activeOpacity={0.8} onPress={() => { router.navigate('/Screen/Map/Map') }}>
-          <LinearGradient
-            colors={['#4D66FF', '#2948FF']}
-            style={styles.doneButton}
-          >
-            <Text style={styles.doneButtonText}>Done</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
-    // </ImageBackground>
+        {/* Options Grid */}
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.chipContainer}>
+            {NIGHTLIFE_OPTIONS.map((item) => {
+              const isSelected = selectedItems.includes(item);
+              return (
+                <TouchableOpacity
+                  key={item}
+                  onPress={() => toggleSelection(item)}
+                  style={[
+                    styles.chip,
+                    isSelected ? styles.chipSelected : styles.chipUnselected
+                  ]}
+                >
+                  <Text style={styles.chipText}>{item}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </ScrollView>
+
+        {/* Action Button */}
+        <View style={styles.footer}>
+          <TouchableOpacity activeOpacity={0.8} onPress={() => { router.navigate('/Screen/Map/Map') }}>
+            <LinearGradient
+              colors={['#4D66FF', '#2948FF']}
+              style={styles.doneButton}
+            >
+              <Text style={styles.doneButtonText}>Done</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
@@ -95,7 +95,8 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,1)',
+    backgroundColor: 'rgb(0, 0, 0,0.6)',
+
     padding: '15%',
   },
   header: {
@@ -154,7 +155,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   doneButton: {
-   height: '40%',
+    height: '40%',
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',

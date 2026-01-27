@@ -1,36 +1,45 @@
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { usePrivy } from '@privy-io/expo';
-
+import { useLoginWithEmail } from '@privy-io/expo';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, ImageBackground, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAppSelector } from '../../store/hooks';
 export default function LoginScreen() {
-
   const [contact, setContact] = useState("");
-  const privy = usePrivy();
+  const { sendCode } = useLoginWithEmail();
+  const translations = useAppSelector((state: any) => state.language.translations);
+
   const handleGetOtp = async () => {
-    if (!contact.trim()) return;
+    if (!contact.includes("@")) {
+      Alert.alert("Error", translations.enterEmailDesc);
+      return;
+    }
+
     try {
-      await (privy as any).sendOtp({
-        to: contact.trim(),
-      });
-      router.navigate('./Otp');
-    } catch (e) {
-      Alert.alert("Error", "Failed to send OTP");
-      console.log(e);
+      await sendCode({ email: contact });
+      router.push(
+        `/Screen/Login/Otp?contact=${encodeURIComponent(contact)}`
+      );
+    } catch (error: any) {
+      console.error("OTP error:", error);
+      Alert.alert(
+        "Error",
+        error?.message || "Failed to send OTP. Please try again."
+      );
     }
   };
+
   return (
-    // <ImageBackground
-    //   source={require('./assets/space-bg.png')} // Your star background SVG/Image
-    //   style={styles.container}
-    // >
+    <ImageBackground
+      source={require('../../../assets/background/welcome.png')}
+      style={styles.container}
+    >
     <SafeAreaView style={styles.overlay}>
 
       <View style={styles.header}>
-        <TouchableOpacity style={styles.iconCircle} onPress={router.back}>
+        <TouchableOpacity style={styles.iconCircle} onPress={() => router.navigate('/Screen/Welcome/Welcome2')}>
           <Ionicons name="arrow-back" size={20} color="white" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.themeCircle}>
@@ -39,43 +48,43 @@ export default function LoginScreen() {
       </View>
 
       {/* Content */}
-      <View style={styles.content}>
-        <Text style={styles.title}>Welcome to PRESENZ</Text>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.content}>
+        <Text style={styles.title}>{translations.welcomePresenz}</Text>
         <Text style={styles.subtitle}>
-          Please enter <Text style={styles.bold}>your email address or phone number</Text>, so we can verify you.
+          {translations.enterEmailDesc}
         </Text>
 
         <TextInput
           style={styles.input}
-          placeholder="Enter email or phone number"
+          placeholder={translations.enterEmail}
           placeholderTextColor="#6b7280"
           value={contact}
-          onChangeText={setContact}
+          onChangeText={text => setContact(text.replace(/\s+$/, ""))}
           keyboardType="email-address"
         />
 
         <TouchableOpacity
           style={[styles.button]}
-          onPress={() => router.navigate('/Screen/Login/Otp')}
+          onPress={handleGetOtp}
         >
-          <Text style={styles.buttonText}>Get OTP</Text>
+          <Text style={styles.buttonText}>{translations.getOtp}</Text>
         </TouchableOpacity>
-      </View>
+      </KeyboardAvoidingView>
 
       {/* Footer */}
       <View style={styles.footer}>
         <Text style={styles.footerText}>
-          By continuing, you agree to PRESENZ&apos;s
+          {translations.byContinuing}
         </Text>
-        <Text style={styles.footerLink}>Terms of Service and Privacy Policy</Text>
+        <Text style={styles.footerLink}>{translations.terms}</Text>
       </View>
     </SafeAreaView>
-    // </ImageBackground>
+     </ImageBackground>
   );
 }
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#000' },
-  overlay: { flex: 1, backgroundColor: '#000' },
+  container: { flex: 1 },
+  overlay: { flex: 1, backgroundColor: 'rgb(0, 0, 0, 0.6)' },
   header: {
     padding: "1%",
     flexDirection: 'row',

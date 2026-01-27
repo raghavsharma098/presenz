@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Cesium – Photorealistic 3D + Geofence</title>
+
+
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.113/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.113/Build/Cesium/Widgets/widgets.css" rel="stylesheet" />
+
+  <style>
+    html,
+    body,
+    #cesiumContainer {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .cesium-widget-credits {
+      font-size: 10px;
+      opacity: 0.6;
+      right: 6px !important;
+      bottom: 6px !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="cesiumContainer"></div>
+  <div id="eventPopup"
+    style="display:none;position:absolute;z-index:1000;min-width:260px;max-width:320px;transform:translate(-50%, -100%);background:rgba(30,32,44,0.85);border-radius:20px 20px 30px 20px;border:2px solid #fff;box-shadow:0 2px 16px rgba(0,0,0,0.25);padding:0;overflow:hidden;">
+  </div>
+
+  <script>
+
+
+    // Fix for 'domain undefined' in WebView/React Native APK
+    if (typeof document !== 'undefined' && !document.domain) document.domain = 'localhost';
+    Cesium.Ion.defaultAccessToken =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYzUyYjdjYi05MjgxLTRiNGYtYjc3NC1lNzZlZjhmMzdmNWIiLCJpZCI6Mzc3MzEzLCJpYXQiOjE3NjgxNDgxMTB9.YrR18gxWDoEwKZcN7gLMTrC6hjn1FC5A_kmzOz5SJ0w";
+
+
+    const viewer = new Cesium.Viewer("cesiumContainer", {
+      terrain: Cesium.Terrain.fromWorldTerrain(),
+      imageryProvider: new Cesium.IonImageryProvider({ assetId: 2 }),
+      timeline: false,
+      animation: false,
+      baseLayerPicker: false,
+      geocoder: false,
+      homeButton: false,
+      sceneModePicker: false,
+      navigationHelpButton: false,
+      fullscreenButton: false,
+      infoBox: false, // Disable Cesium infoBox
+      selectionIndicator: true,
+    });
+
+    viewer.scene.postProcessStages.fxaa.enabled = true;
+    viewer.scene.globe.depthTestAgainstTerrain = false;
+
+    /* Camera limits */
+    const controller = viewer.scene.screenSpaceCameraController;
+    // controller.minimumZoomDistance = 100;
+    // controller.maximumZoomDistance = 12000;
+    controller.constrainedPitch = true;
+    controller.minimumPitch = Cesium.Math.toRadians(10);
+    controller.maximumPitch = Cesium.Math.toRadians(65);
+
+
+
+
+
+    // Use user location from window if available, else fallback to DTU New Delhi
+    let latitude = 48.858376;
+    let longitude =  2.294469;
+    if (window.userLocation && typeof window.userLocation.latitude === 'number' && typeof window.userLocation.longitude === 'number') {
+      latitude = window.userLocation.latitude;
+      longitude = window.userLocation.longitude;
+    }
+
+
+
+    Cesium.createGooglePhotorealistic3DTileset().then((tileset) => {
+      viewer.scene.primitives.add(tileset);
+
+      // Move camera to DTU New Delhi coordinates on load
+      viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(
+          longitude,
+          latitude,
+          2500
+        ),
+        orientation: {
+          heading: Cesium.Math.toRadians(0),
+          pitch: Cesium.Math.toRadians(-45),
+          roll: 0,
+        },
+        duration: 2,
+      });
+
+      viewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
+        ellipse: {
+          semiMajorAxis: 20000, // 20 km
+          semiMinorAxis: 20000,
+          material: Cesium.Color.BLUE.withAlpha(0.01),
+          outline: true,
+          outlineColor: Cesium.Color.BLUE,
+          heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+          zIndex: 10,
+        },
+        name: "Geofence",
+      });
+
+
+      viewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(
+          longitude,
+          latitude,
+          20
+        ),
+        billboard: {
+          image:
+            'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"><circle cx="24" cy="24" r="20" fill="gold" stroke="black" stroke-width="2"/></svg>',
+          width: 24,
+          height: 24,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          scaleByDistance: new Cesium.NearFarScalar(
+            1.5,
+            1.2,
+            1.5e7,
+            0.8
+          ),
+        },
+        name: "Marker",
+      });
+
+      // --- FETCH EVENTS FROM API ---
+      // Make sure axios is included via CDN
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js';
+      script.onload = function () {
+        let eventEntities = []; // Store entities to remove on refresh
+
+        // Store geofence entity for update
+        let geofenceEntity = null;
+        // Helper to add or update geofence ellipse
+        function updateGeofence(meters) {
+          if (geofenceEntity) viewer.entities.remove(geofenceEntity);
+          geofenceEntity = viewer.entities.add({
+            position: Cesium.Cartesian3.fromDegrees(longitude, latitude),
+            ellipse: {
+              semiMajorAxis: meters,
+              semiMinorAxis: meters,
+              material: Cesium.Color.WHITE.withAlpha(0.001),
+              outline: true,
+              outlineColor: Cesium.Color.WHITE,
+              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+              zIndex: 10,
+            },
+            name: "Geofence",
+          });
+        }
+
+        // Listen for RangeSelected event from React Native
+        let currentRange = 20000; // Default to 20km if not selected
+        function clearAllMarkers() {
+          if (Array.isArray(eventEntities)) {
+            eventEntities.forEach(entity => viewer.entities.remove(entity));
+            eventEntities = [];
+          }
+        }
+        window.addEventListener('message', function (event) {
+          try {
+            const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+            if (data && data.type === 'RangeSelected' && typeof data.meters === 'number') {
+              console.log('[RangeSelector] Range selected from RN WebView:', data.meters, 'meters');
+              currentRange = data.meters;
+              updateGeofence(currentRange);
+              fetchAndDisplayEvents();
+            }
+          } catch (e) { }
+        });
+        // Also listen for RangeSelected event from web (for debugging)
+        window.addEventListener('RangeSelected', function (event) {
+          try {
+            const meters = event.detail?.meters;
+            if (typeof meters === 'number') {
+              console.log('[RangeSelector] Range selected from web:', meters, 'meters');
+              currentRange = meters;
+              updateGeofence(currentRange);
+              fetchAndDisplayEvents();
+            }
+          } catch (e) { }
+        });
+
+        // Helper: Cloudinary video thumbnail URL
+        function getCloudinaryThumbnail(videoUrl) {
+          if (!videoUrl) return '';
+          const transformation = 'so_2,du_1,w_400,h_400,c_fill,g_auto,r_max,b_rgb:000000,e_outline:outer:10:glow:yellow/';
+          const uploadIdx = videoUrl.indexOf('/upload/');
+          if (uploadIdx === -1) return '';
+          return videoUrl.slice(0, uploadIdx + 8) + transformation + videoUrl.slice(uploadIdx + 8) + '.jpg';
+        }
+
+        // SVG badge generator
+        function getCircularBadge(imageUrl) {
+          return `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><defs><clipPath id='clip'><circle cx='40' cy='40' r='34'/></clipPath><filter id='glow' x='-40%' y='-40%' width='180%' height='180%'><feDropShadow dx='0' dy='0' stdDeviation='6' flood-color='%231EC6FF' flood-opacity='0.8'/></filter></defs><g filter='url(%23glow)'><circle cx='40' cy='40' r='36' fill='%23000' opacity='0.7'/><image href='${encodeURIComponent(imageUrl)}' x='4' y='4' width='72' height='72' clip-path='url(%23clip)' preserveAspectRatio='xMidYMid slice'/><circle cx='40' cy='40' r='34' fill='none' stroke='%231EC6FF' stroke-width='4'/></g></svg>`;
+        }
+
+        function fetchAndDisplayEvents() {
+          // Remove previous event entities
+          eventEntities.forEach(entity => viewer.entities.remove(entity));
+          eventEntities = [];
+
+          // Use currentRange for API
+          let distancePath = '20km';
+          if (currentRange === 100) distancePath = '100m';
+          else if (currentRange === 300) distancePath = '300m';
+          else if (currentRange === 900) distancePath = '900m';
+          else if (currentRange === 5000) distancePath = '5km';
+          let apiUrl = `https://localhost:300/api/posts/nearby?lat=${latitude}&long=${longitude}`;
+          let businessApiUrl = `https://localhost:300/api/business/nearby?lat=${latitude}&long=${longitude}`;
+          if (distancePath !== '20km') {
+            apiUrl = `https://localhost:300/api/posts/nearby/${distancePath}?lat=${latitude}&long=${longitude}`;
+            businessApiUrl = `https://localhost:300/api/business/nearby/${distancePath}?lat=${latitude}&long=${longitude}`;
+          }
+          // Fetch regular posts
+          axios.get(apiUrl, {
+            headers: { "ngrok-skip-browser-warning": "true" }
+          })
+            .then(function (response) {
+              // Helper to calculate distance between two lat/long points in meters
+              function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
+                const R = 6371000; // Radius of the earth in meters
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a =
+                  0.5 - Math.cos(dLat) / 2 +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  (1 - Math.cos(dLon)) / 2;
+                return R * 2 * Math.asin(Math.sqrt(a));
+              }
+              const events = response.data;
+              // Array of marker pin images
+              const markerPins = [
+                'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+              ];
+              events.forEach(function (event) {
+                // Only show marker if not expired and within range
+                if (event.status !== 'expired') {
+                  const lat = event.location?.lat;
+                  const long = event.location?.long;
+                  if (typeof lat !== 'number' || typeof long !== 'number') return;
+                  const distance = getDistanceFromLatLonInMeters(latitude, longitude, lat, long);
+                  if (distance > currentRange) return;
+                  const address = event.location?.address || '';
+                  const mediaUrl = event.url;
+                  const mediaType = event.type;
+                  let badgeImage = null;
+                  if (mediaType === 'image') {
+                    badgeImage = getCircularBadge(mediaUrl);
+                  } else if (mediaType === 'video') {
+                    const thumbUrl = getCloudinaryThumbnail(mediaUrl);
+                    badgeImage = getCircularBadge(thumbUrl);
+                  }
+                  // Add badge billboard above marker
+                  if (badgeImage) {
+                    const badgeEntity = viewer.entities.add({
+                      position: Cesium.Cartesian3.fromDegrees(long, lat, 25),
+                      billboard: {
+                        image: badgeImage,
+                        width: 48,
+                        height: 48,
+                        scale: 1,
+                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                        horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                        pixelOffset: new Cesium.Cartesian2(0, -48),
+                        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                      },
+                      show: true,
+                    });
+                    eventEntities.push(badgeEntity);
+                  }
+                  // Choose a random marker pin for this post
+                  const randomPin = markerPins[Math.floor(Math.random() * markerPins.length)];
+                  // Add marker for normal post: direct navigation on tap, no popup
+                  const markerEntity = viewer.entities.add({
+                    position: Cesium.Cartesian3.fromDegrees(long, lat, 30),
+                    billboard: {
+                      image: randomPin,
+                      width: 60,
+                      height: 60,
+                      disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                    },
+                    name: event.description,
+                    // No description property for direct navigation
+                  });
+                  markerEntity.postId = event._id;
+                  markerEntity.mediaType = 'image';
+                  markerEntity.isNormalPost = true;
+                  eventEntities.push(markerEntity);
+                }
+              });
+            })
+            .catch(function (error) {
+              console.error('Failed to fetch events:', error);
+            });
+          // Fetch business posts
+          axios.get(businessApiUrl, {
+            headers: { "ngrok-skip-browser-warning": "true" }
+          })
+            .then(function (response) {
+              // Helper to calculate distance between two lat/long points in meters
+              function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
+                const R = 6371000; // Radius of the earth in meters
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a =
+                  0.5 - Math.cos(dLat) / 2 +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  (1 - Math.cos(dLon)) / 2;
+                return R * 2 * Math.asin(Math.sqrt(a));
+              }
+              const businessEvents = response.data;
+              const markerPins = [
+                'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+              ];
+              businessEvents.forEach(function (event) {
+                if (event.status !== 'expired') {
+                  // Use GeoJSON coordinates for business posts
+                  const lat = event.location?.coordinates?.[1];
+                  const long = event.location?.coordinates?.[0];
+                  if (typeof lat !== 'number' || typeof long !== 'number') return;
+                  const distance = getDistanceFromLatLonInMeters(latitude, longitude, lat, long);
+                  if (distance > currentRange) return;
+                  const address = event.location?.address || '';
+                  const mediaUrl = event.url;
+                  const mediaType = event.type;
+                  let badgeImage = null;
+                  if (mediaType === 'image') {
+                    badgeImage = getCircularBadge(mediaUrl);
+                  } else if (mediaType === 'video') {
+                    const thumbUrl = getCloudinaryThumbnail(mediaUrl);
+                    badgeImage = getCircularBadge(thumbUrl);
+                  }
+                  // Add badge billboard above marker
+                  if (badgeImage) {
+                    const badgeEntity = viewer.entities.add({
+                      position: Cesium.Cartesian3.fromDegrees(long, lat, 25),
+                      billboard: {
+                        image: badgeImage,
+                        width: 48,
+                        height: 48,
+                        scale: 1,
+                        verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                        horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+                        pixelOffset: new Cesium.Cartesian2(0, -48),
+                        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                      },
+                      show: true,
+                    });
+                    eventEntities.push(badgeEntity);
+                  }
+                  // Use the same marker pin as regular posts
+                  const randomPin = markerPins[Math.floor(Math.random() * markerPins.length)];
+                  // Determine if current user is owner (window.currentUserId must be set from React Native)
+                  // Normalize Privy_Id and currentUserId for comparison
+                  const normalizePrivyId = (id) => id ? String(id).replace(/^did:privy:/, '') : '';
+                  const privyId = normalizePrivyId(event.Privy_Id);
+                  const currentUserId = normalizePrivyId(window.currentUserId);
+                  const isOwner = privyId && currentUserId && (privyId === currentUserId);
+                  // Debug log for owner check
+                  console.log('[BusinessPost] privyId:', privyId, 'currentUserId:', currentUserId, 'isOwner:', isOwner);
+                  let popupHtml = '';
+                  if (isOwner) {
+                    popupHtml = `
+                    <div style="
+  width:10px;
+  background:rgba(40,40,40,0.95);
+  border-radius:14px;
+  padding:6px 6px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.35);
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
+  color:#fff;
+">
+
+  <div style="
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 14px;
+    cursor:pointer;
+  ">
+    <div style="width:18px;text-align:center;">✏️</div>
+    <div style="cursor:pointer;" onclick="window.ReactNativeWebView && window.ReactNativeWebView.postMessage && window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'navigateToEditScreen', postId: '${event._id}' }))">Edit</div>
+  </div>
+
+  <div style="
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 14px;
+    cursor:pointer;
+    color:#ff4d4d;"
+    onclick="window.ReactNativeWebView && window.ReactNativeWebView.postMessage && window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'openDeleteModal', postId: '${event._id}', action: 'expire' }))"
+  >
+    <div style="width:18px;text-align:center;">🗑️</div>
+    <div>Delete</div>
+  </div>
+
+</div>
+
+                    `;
+                  } else {
+                    popupHtml = `
+                      <div style="padding:16px 18px 12px 18px;">
+                        <div style='display:flex;align-items:center;gap:8px;'>
+                          <span style='display:inline-block;width:14px;height:14px;background:#F44336;border-radius:50%;margin-right:2px;'></span>
+                          <span style='color:#fff;font-size:1.1em;font-weight:500;'>Live Now</span>
+                        </div>
+                        <div style='margin:8px 0 0 0;font-size:1.25em;font-weight:700;color:#1EC6FF;text-shadow:0 1px 2px #000;'>${event.description}</div>
+                        <hr style='border:none;border-top:2px solid #1EC6FF;margin:10px 0 8px 0;'>
+                        <div style='display:flex;align-items:center;gap:8px;margin-bottom:2px;'>
+                          <img src='https://cdn-icons-png.flaticon.com/512/684/684908.png' style='width:20px;height:20px;filter:invert(1) brightness(2);'>
+                          <span style='color:#fff;font-size:1.08em;font-weight:500;'>${address}</span>
+                        </div>
+                      </div>
+                    `;
+                  }
+                  // Add business marker with popup
+                  const markerEntity = viewer.entities.add({
+                    position: Cesium.Cartesian3.fromDegrees(long, lat, 30),
+                    billboard: {
+                      image: randomPin,
+                      width: 60,
+                      height: 60,
+                      disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                    },
+                    name: event.description,
+                    description: popupHtml
+                  });
+                  eventEntities.push(markerEntity);
+                }
+              });
+            })
+            .catch(function (error) {
+              console.error('Failed to fetch business events:', error);
+            });
+        }
+
+        // Initial fetch: show 20km markers by default
+        updateGeofence(20000); // Default geofence for 20km
+        fetchAndDisplayEvents();
+
+        // Auto-refresh every 30 seconds
+        setInterval(fetchAndDisplayEvents, 30000);
+
+        // (No dropdown in RN, so no listener needed)
+      };
+      document.head.appendChild(script);
+
+
+      // Show custom popup for business marker, direct navigation for normal post marker
+      const popup = document.getElementById('eventPopup');
+      let popupEntity = null;
+      viewer.screenSpaceEventHandler.setInputAction(function onLeftClick(movement) {
+        const pickedObject = viewer.scene.pick(movement.position);
+        if (Cesium.defined(pickedObject) && pickedObject.id) {
+          // If normal post marker, navigate directly
+          if (pickedObject.id.isNormalPost && pickedObject.id.postId) {
+            if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+              window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'navigateToMedia', postId: pickedObject.id.postId, mediaType: pickedObject.id.mediaType }));
+            }
+            popup.style.display = 'none';
+            popupEntity = null;
+            return;
+          }
+          // If business marker, show popup as before
+          if (pickedObject.id.description) {
+            const cartesian = pickedObject.id.position && pickedObject.id.position.getValue(viewer.clock.currentTime);
+            if (cartesian) {
+              const windowPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(viewer.scene, cartesian);
+              popup.innerHTML = pickedObject.id.description;
+              popup.style.left = windowPosition.x + 'px';
+              popup.style.top = windowPosition.y + 'px';
+              popup.style.display = 'block';
+              popupEntity = pickedObject.id;
+            }
+          }
+        } else {
+          popup.style.display = 'none';
+          popupEntity = null;
+        }
+      }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+      // Hide popup on map click elsewhere
+      viewer.screenSpaceEventHandler.setInputAction(function onLeftClick(movement) {
+        const pickedObject = viewer.scene.pick(movement.position);
+        if (!Cesium.defined(pickedObject) || !pickedObject.id || !pickedObject.id.description) {
+          popup.style.display = 'none';
+        }
+      }, Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
+
+      // Keep popup in sync with camera move
+      viewer.scene.postRender.addEventListener(function () {
+        if (popup.style.display === 'block' && popupEntity && popupEntity.position) {
+          const cartesian = popupEntity.position.getValue(viewer.clock.currentTime);
+          if (cartesian) {
+            const windowPosition = Cesium.SceneTransforms.wgs84ToWindowCoordinates(viewer.scene, cartesian);
+            popup.style.left = windowPosition.x + 'px';
+            popup.style.top = windowPosition.y + 'px';
+          }
+        }
+      });
+      // --- END RANDOM EVENT MARKERS ---
+    });
+  </script>
+</body>
+</html>
